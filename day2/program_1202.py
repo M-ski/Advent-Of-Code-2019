@@ -1,7 +1,7 @@
 import logging as log
 from typing import List
 
-from day2.Operations import Operations, HaltProgram, OP_MAPPINGS
+from day2.operations import Operations, HaltProgram, OP_MAPPINGS
 
 
 class Program:

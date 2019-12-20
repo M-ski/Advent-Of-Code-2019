@@ -52,7 +52,7 @@ class Operations:
         raise RuntimeError("Unexpected Operation")
 
 
-OP_MAPPINGS: Mapping[int, Callable] = {
+OP_MAPPINGS: Mapping[int, Callable[[List[int], int], None]] = {
     Operations.OP_CODE_ADDITION: Operations.add,
     Operations.OP_CODE_MULTIPLY: Operations.multiply,
     Operations.OP_CODE_HALT: Operations.halt

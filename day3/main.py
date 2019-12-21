@@ -70,22 +70,6 @@ class Segment:
             coordinate = Coordinate(another.start.x, self.start.y)
             combined_distance_to_intercept = self.get_combined_distance_to_intercept(another, coordinate)
             return True, coordinate, combined_distance_to_intercept
-        # otherwise, check if they're vertical and overlapping
-        elif self.direction in Segment.__vertical_directions and another.direction in Segment.__vertical_directions:
-            if self.start.x == another.start.x:
-                coordinate = Coordinate(self.start.x, min([self.start.y, another.start.y, self.end.y, another.end.y]))
-                combined_distance_to_intercept = self.get_combined_distance_to_intercept(another, coordinate)
-                return True, coordinate, combined_distance_to_intercept
-            else:
-                return False, None, None
-        # and penultimately, check if they're both horizontal and overlapping
-        # elif self.direction in Segment.__horizontal_directions and another.direction in Segment.__horizontal_directions:
-        #     if self.start.y == another.start.y:
-        #         coordinate = Coordinate(self.start.y, min([self.start.x, another.start.x, self.end.x, another.end.x]))
-        #         combined_distance_to_intercept = self.get_combined_distance_to_intercept(another, coordinate)
-        #         return True, coordinate, combined_distance_to_intercept
-        #     else:
-        #         return False, None, None
         # finally, generic case of no intercept
         else:
             return False, None, None
@@ -154,6 +138,7 @@ def main():
 
 
 def debug_help():
+    # really could not be bothered with tests for this one!
     log.basicConfig(level=log.DEBUG)
     s1 = Segment(Direction.UP, 5, Coordinate(0, 0), 1)
     s2 = Segment(Direction.RIGHT, 5, Coordinate(-2, 2), 1)

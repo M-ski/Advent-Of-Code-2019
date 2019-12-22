@@ -1,7 +1,7 @@
 import logging as log
 from typing import List
 
-from day2.operations import Operations, HaltProgram, OP_MAPPINGS
+from day2.operation import Operation, HaltProgram, OP_MAPPINGS
 
 
 class Program:
@@ -21,7 +21,7 @@ class Program:
         try:
             for op_index in self.__get_op_code_positions():
                 self.__print_current_op(op_index)
-                operation = OP_MAPPINGS.get(self.memory[op_index], Operations.unrecognised_op_instr)
+                operation = OP_MAPPINGS.get(self.memory[op_index], Operation.unrecognised_op_instr)
                 operation(self.memory, op_index)
         except HaltProgram:
             self.print_instructions()
@@ -38,10 +38,10 @@ class Program:
         Program.logger.info('---   ---   ---')
 
     def __print_current_op(self, index) -> None:
-        Program.logger.debug('Current instruction: %s', self.memory[index:index + Operations.OP_LENGTH:1])
+        Program.logger.debug('Current instruction: %s', self.memory[index:index + Operation.OP_LENGTH:1])
 
     def __get_op_code_positions(self) -> List[int]:
-        return list(range(0, len(self.memory), Operations.OP_LENGTH))
+        return list(range(0, len(self.memory), Operation.OP_LENGTH))
 
     def __populate_operations(self) -> None:
         self.__operations = [self.memory[self.__op_code_positions[i]:self.__op_code_positions[i + 1]]

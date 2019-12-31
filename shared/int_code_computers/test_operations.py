@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from shared.int_code_computers.operations import AddOperation, MultiplyOperation, JumpIfTrueOperation, \
-    JumpIfFalseOperation
+    JumpIfFalseOperation, LessThanOperation, EqualsOperation
 from shared.int_code_computers.program import Program
 from shared.int_code_computers.state import State
 
@@ -144,3 +144,48 @@ class TestOperations(TestCase):
         operation.compute(state)
         self.assertEqual(expected_end_pointer, state.index)
         self.assertEqual(expected_memory, state.memory)
+
+    def test_less_than_operation_was_less_than(self):
+        #         0, 1, 2, 3,  4, 5, 6, 7
+        memory = [9, 5, 6, 7, 99, 5, 7, 0]
+        expected_memory = [9, 5, 6, 7, 99, 5, 7, 1]  # we only expect the last item in memory to be set to 1
+        expected_end_pointer = 0 + 4
+        operation = LessThanOperation()
+        state = State(memory, 0)
+        operation.compute(state)
+        self.assertEqual(expected_end_pointer, state.index)
+        self.assertEqual(expected_memory, state.memory)
+
+    def test_less_than_operation_was_more_than(self):
+        #            0,  1, 2, 3,  4, 5
+        memory = [1109, 10, 0, 5, 99, 0]
+        expected_memory = [1109, 10, 0, 5, 99, 0]  # we expect no modifications this time (10 is not less than 0)
+        expected_end_pointer = 0 + 4
+        operation = LessThanOperation()
+        state = State(memory, 0)
+        operation.compute(state)
+        self.assertEqual(expected_end_pointer, state.index)
+        self.assertEqual(expected_memory, state.memory)
+
+    def test_equals_operation_was_equal(self):
+        #         0, 1, 2, 3,  4, 5, 6, 7
+        memory = [9, 5, 6, 7, 99, 7, 7, 0]
+        expected_memory = [9, 5, 6, 7, 99, 7, 7, 1]  # we only expect the last item in memory to be set to 1
+        expected_end_pointer = 0 + 4
+        operation = EqualsOperation()
+        state = State(memory, 0)
+        operation.compute(state)
+        self.assertEqual(expected_end_pointer, state.index)
+        self.assertEqual(expected_memory, state.memory)
+
+    def test_equals_operation_was_not_equal(self):
+        #            0,  1, 2, 3,  4, 5
+        memory = [1109, 10, 0, 5, 99, 0]
+        expected_memory = [1109, 10, 0, 5, 99, 0]  # we expect no modifications this time (10 is not less than 0)
+        expected_end_pointer = 0 + 4
+        operation = EqualsOperation()
+        state = State(memory, 0)
+        operation.compute(state)
+        self.assertEqual(expected_end_pointer, state.index)
+        self.assertEqual(expected_memory, state.memory)
+

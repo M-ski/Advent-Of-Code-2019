@@ -142,6 +142,40 @@ class JumpIfFalseOperation(Operation):
         JumpSupport.potentially_execute_jump(self.__logger, state, should_jump == 0, to_location)
 
 
+class LessThanOperation(Operation):
+    __logger = log.getLogger('LessThanOperation')
+    op_code = 7
+    op_length = 4
+
+    def compute(self, state: State):
+        val_1, val_2 = get_inputs(state, self.op_length)[0:2]
+        assignment_index = state.at(state.index + 3)
+        if val_1 < val_2:
+            self.__logger.info("Values were less than, assigning true to %s", assignment_index)
+            state.assign(assignment_index, 1)
+        else:
+            self.__logger.info("Values were not less than, assigning false to %s", assignment_index)
+            state.assign(assignment_index, 0)
+        state.increase_index(self.op_length)
+
+
+class EqualsOperation(Operation):
+    __logger = log.getLogger('EqualsOperation')
+    op_code = 8
+    op_length = 4
+
+    def compute(self, state: State):
+        val_1, val_2 = get_inputs(state, self.op_length)[0:2]
+        assignment_index = state.at(state.index + 3)
+        if val_1 == val_2:
+            self.__logger.info("Values were equal, assigning true to %s", assignment_index)
+            state.assign(assignment_index, 1)
+        else:
+            self.__logger.info("Values were not equal than, assigning true to %s", assignment_index)
+            state.assign(assignment_index, 0)
+        state.increase_index(self.op_length)
+
+
 class HaltOperation(Operation):
     op_code = 99
     op_length = 1

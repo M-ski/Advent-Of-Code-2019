@@ -1,6 +1,6 @@
 import logging as log
 from abc import abstractmethod
-from typing import Tuple, List, Optional, Mapping
+from typing import List, Optional, Mapping
 
 from shared.int_code_computers.state import State
 
@@ -9,8 +9,9 @@ IMMEDIATE_MODE = 1
 POSITION_MODE = 0
 __LOGGER = log.getLogger('Operations-Inputs')
 
-def get_inputs(state: State) -> List[int]:
-    full_codes: List[int] = [int(code) for code in f'{state.current_op():05}']
+
+def get_inputs(state: State, num_inputs: int) -> List[Optional[int]]:
+    full_codes: List[int] = [int(code) for code in f'{state.current_op():0{num_inputs + 1}}']
     instruction_types = full_codes[0:len(full_codes) - 2:1]
     inputs = []
     input_number = 1
@@ -22,7 +23,9 @@ def get_inputs(state: State) -> List[int]:
                           if state.is_in_memory(state.at(index + input_number))
                           else None)
         elif int_type_code == IMMEDIATE_MODE and state.is_in_memory(index + input_number):
-            inputs.append(state.at(index + input_number))
+            inputs.append(state.at(index + input_number)
+                          if state.is_in_memory(index + input_number)
+                          else None)
         else:
             inputs.append(None)
         input_number = input_number + 1
@@ -65,7 +68,7 @@ class AddOperation(Operation):
     op_length = 4
 
     def compute(self, state: State):
-        val1, val2 = get_inputs(state)[0:2]
+        val1, val2 = get_inputs(state, self.op_length)[0:2]
         result_index = state.at(state.index + 3)
         self.logger.debug('Adding value: %s to %s into position %s', val1, val2, result_index)
         state.assign(result_index, val1 + val2)
@@ -77,7 +80,7 @@ class MultiplyOperation(Operation):
     op_length = 4
 
     def compute(self, state: State):
-        val1, val2 = get_inputs(state)[0:2]
+        val1, val2 = get_inputs(state, self.op_length)[0:2]
         result_index = state.at(state.index + 3)
         self.logger.debug('Multiplying value: %s with %s into position %s', val1, val2, result_index)
         state.assign(result_index, val1 * val2)
@@ -101,9 +104,42 @@ class OutputOperation(Operation):
     op_length = 2
 
     def compute(self, state: State):
-        result_index: int = get_inputs(state)[0]
+        result_index: int = get_inputs(state, self.op_length)[0]
         self.__logger.info("Output operation, op_ind: %s, val: %s", state.index, result_index)
         state.increase_index(self.op_length)
+
+
+class JumpSupport:
+    op_length = 3
+
+    @staticmethod
+    def potentially_execute_jump(logger, state: State, should_jump: bool, jump_to: int):
+        if should_jump:
+            logger.info('jumping from %s to %s', state.index, jump_to)
+            state.index = jump_to
+        else:
+            logger.debug("not jumping at this point, should_jump=%s", should_jump)
+            state.increase_index(JumpSupport.op_length)
+
+
+class JumpIfTrueOperation(Operation):
+    __logger = log.getLogger('JumpIfTrueOperation')
+    op_code = 5
+    op_length = 3
+
+    def compute(self, state: State):
+        should_jump, to_location = get_inputs(state, self.op_length)[0:2]
+        JumpSupport.potentially_execute_jump(self.__logger, state, should_jump != 0, to_location)
+
+
+class JumpIfFalseOperation(Operation):
+    __logger = log.getLogger('JumpIfFalseOperation')
+    op_code = 6
+    op_length = 3
+
+    def compute(self, state: State):
+        should_jump, to_location = get_inputs(state, self.op_length)[0:2]
+        JumpSupport.potentially_execute_jump(self.__logger, state, should_jump == 0, to_location)
 
 
 class HaltOperation(Operation):
@@ -129,9 +165,12 @@ class OperationFactory:
 
     def resolve(self, state: State, resolve_at_index=-1) -> Operation:
         index = state.index if resolve_at_index == -1 else resolve_at_index
-        potential_op_list = [entry[1] for entry in self.mappings.items() if str(state.at(index)).endswith(entry[0])]
+        potential_op_list = [entry for entry in self.mappings.items()
+                             if str(state.at(index) if state.is_in_memory(index) else 98)  # 98 is not a valid op code
+                             .endswith(entry[0])]
         if len(potential_op_list) is 0:
-            self.logger.error('Something went wrong. Op code was not valid. Current position: %s, Op code was: %s',
-                              index, state.at(index))
-            raise RuntimeError(f"Could not find operation with op_code {state.at(index)}")
-        return potential_op_list[0]
+            self.logger.error('Something went wrong: op_code was not valid. Current position: %s, op_code was: %s',
+                              index, state.at(index) if state.is_in_memory(index) else None)
+            raise RuntimeError("Could not find operation with op_code " +
+                               f"{state.at(index) if state.is_in_memory(index) else None}")
+        return potential_op_list[0][1]

@@ -5,7 +5,6 @@ class State:
     memory: List[int]
     mem_length: int
     index: int
-    operations: List[List[int]]  # formatted operation sets
 
     def __init__(self, memory: List[int], start_index=0):
         self.memory = memory

@@ -50,4 +50,4 @@ class Program:
             self.__operations.append(self.state.memory[index::])
 
     def __repr__(self) -> str:
-        return "State: %s".format(self.state)
+        return f"{self.state}"

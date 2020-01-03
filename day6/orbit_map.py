@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 from day6.tree import OrbitalTree, Node
 import logging as log
@@ -19,8 +19,7 @@ class OrbitDef:
         self.raw_node = Node(this)
 
 
-def main():
-    orbital_tree = OrbitalTree()
+def part_1(orbital_tree):
     orbits: List[OrbitDef] = IO.read_lines(
         lambda lines: [OrbitDef(*line.rstrip().split(")")) for line in lines]
     )
@@ -28,14 +27,8 @@ def main():
     root_orbit = next(orbit for orbit in orbits if orbit.parent == 'COM')
     root_node = orbital_tree.add_node('COM', root_orbit.this)
     add_all_orbits(lambda current_orbit_name: lambda n: n.parent == current_orbit_name, root_node, orbits)
+    # then get orbital information
     log.info("Sum of orbital orders in tree %s. Expected: %s", orbital_tree.orbital_orders(), 42)
-    path_to_you = orbital_tree.path_to('YOU')
-    log.info("path to you is %s", path_to_you)
-    path_to_santa = orbital_tree.path_to('SAN')
-    log.info("path to santa is %s", path_to_santa)
-    pathing = set(path_to_santa).symmetric_difference(set(path_to_you))
-    log.info("length of path from you to santa %s", len(pathing) - 2)
-    log.info(orbital_tree)
 
 
 def add_all_orbits(filter_for_child, current_orbit, orbits):
@@ -44,6 +37,22 @@ def add_all_orbits(filter_for_child, current_orbit, orbits):
         new_node = OrbitalTree.add_node_to(child_orbit.this, current_orbit)
         child_orbit.added = True
         add_all_orbits(filter_for_child, new_node, orbits)
+
+
+def part_2(orbital_tree):
+    path_to_you = orbital_tree.path_to('YOU')
+    log.info("path to you is %s", path_to_you)
+    path_to_santa = orbital_tree.path_to('SAN')
+    log.info("path to santa is %s", path_to_santa)
+    pathing = set(path_to_santa).symmetric_difference(set(path_to_you))
+    log.info("length of path from you to santa %s", len(pathing) - 2)
+
+
+def main():
+    orbital_tree = OrbitalTree()
+    part_1(orbital_tree)
+    part_2(orbital_tree)
+    log.info(orbital_tree)
 
 
 def debug():

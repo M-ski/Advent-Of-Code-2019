@@ -2,11 +2,11 @@ from typing import List
 import logging as log
 
 from shared.int_code_computers.program import Program
+from shared.utils import IO
 
 
 def part1():
-    with open('input.txt', 'r') as source:
-        program_code: List[int] = list(map(int, source.read().split(",")))
+    program_code: List[int] = IO.read_as_one_line(lambda line: list(map(int, line.split(","))))
     program = Program(program_code)
     program.print_instructions()
     program.run()

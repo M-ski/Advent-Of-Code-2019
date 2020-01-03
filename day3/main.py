@@ -2,7 +2,9 @@ import logging as log
 from enum import Enum
 from functools import reduce
 from time import time_ns
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, AnyStr
+
+from shared.utils import IO
 
 
 class Direction(Enum):
@@ -125,8 +127,7 @@ class Line:
 def main():
     log.basicConfig(level=log.INFO)
     t1 = time_ns()
-    with open('input.txt', 'r') as source:
-        path_defs = source.readlines()
+    path_defs: List[AnyStr] = IO.read_lines(lambda x: x)
     l1 = Line(path_defs[0])
     l2 = Line(path_defs[1])
     intercepts = l1.get_intercepts(l2)

@@ -1,6 +1,8 @@
 from math import floor
-from typing import List
+from typing import List, AnyStr, Callable, Any, T
 import logging as log
+
+from shared.utils import IO
 
 
 def calc_fuel_for_mass(mass: float) -> float:
@@ -25,9 +27,7 @@ def log_and_calc_projected_fuel(mass: float) -> float:
 
 
 if __name__ == '__main__':
-    with open('input.txt', 'r') as source:
-        component_masses: List[float] = [float(val) for val in source.readlines()]
-
+    component_masses = IO.read_lines(lambda lines: [float(val) for val in lines])
     log.basicConfig(level=log.INFO)
     computed_fuel: List[float] = [log_and_calc_projected_fuel(component) for component in component_masses]
     total_fuel: float = sum(computed_fuel)

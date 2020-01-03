@@ -1,7 +1,9 @@
 import logging as log
+from itertools import chain
 from typing import List
 
 from shared.int_code_computers.program import Program
+from shared.utils import IO
 
 
 def part_1(data: List[int]):
@@ -38,8 +40,7 @@ def part_2(data: List[int]):
 
 def main():
     # load the program data
-    with open('input.txt', 'r') as source:
-        data: List[int] = list(map(int, source.readline().split(",")))
+    data: List[int] = IO.read_as_one_line(lambda line: list(map(int, line.split(","))))
     part_1(data.copy())
     part_2(data.copy())
 
